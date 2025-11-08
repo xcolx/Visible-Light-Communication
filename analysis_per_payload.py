@@ -43,7 +43,7 @@ def generate_plots():
             data_arrays.append((float(dist.replace("_", ".")), data))
         
         data_arrays.sort(key=lambda v: v[0])
-        plt.figure()
+        plt.figure(figsize=(11.6, 5.75))
         for data in data_arrays[:len(data_arrays) // 2]:
             plt.plot(range(len(data[1])), data[1], label=f"Distance: {data[0]} cm")
 
@@ -51,7 +51,7 @@ def generate_plots():
         plt.legend()
         plt.show()
 
-        plt.figure()
+        plt.figure(figsize=(11.6, 5.75))
         for data in data_arrays[len(data_arrays) // 2:]:
             plt.plot(range(len(data[1])), data[1], label=f"Distance: {data[0]} cm")
 
@@ -174,4 +174,37 @@ for dist in distances:
     print("mean (d:", dist, "): ", round(m, 3))
     print("stddev: ", round(stddev(data_per_payload["180"][dist][:min_length], m), 3))
 
+# for delay
 generate_plots()
+
+for payload_size in data_per_payload:
+    payload = int(payload_size)
+    for dist in data_per_payload[payload_size]:
+        new_arr = []
+        for val in data_per_payload[payload_size][dist]:
+            new_arr.append(payload / (val + 0.01))
+        data_per_payload[payload_size][dist] = new_arr
+
+# for throughput
+generate_plots()
+
+distances = ["2_5", "10", "20", "30", "40", "50", "55"]
+print("Standard deviations for payload size 1 and each of the distances: (THROUGHPUT)")
+for dist in distances:
+    m = mean(data_per_payload["1"][dist][:min_length])
+    print("mean (d:", dist, "): ", round(m, 5))
+    print("stddev: ", round(stddev(data_per_payload["1"][dist][:min_length], m), 5))
+
+print("Standard deviations for payload size 100 and each of the distances: (THROUGHPUT)")
+min_length = min(map(len, data_per_payload["100"].values()))
+for dist in distances:
+    m = mean(data_per_payload["100"][dist][:min_length])
+    print("mean (d:", dist, "): ", round(m, 5))
+    print("stddev: ", round(stddev(data_per_payload["100"][dist][:min_length], m), 5))
+
+print("Standard deviations for payload size 180 and each of the distances: (THROUGHPUT)")
+min_length = min(map(len, data_per_payload["180"].values()))
+for dist in distances:
+    m = mean(data_per_payload["180"][dist][:min_length])
+    print("mean (d:", dist, "): ", round(m, 5))
+    print("stddev: ", round(stddev(data_per_payload["180"][dist][:min_length], m), 5))
